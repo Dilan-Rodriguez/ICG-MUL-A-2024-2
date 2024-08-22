@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selector de Figuras</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5b1a2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            width: 280px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 10px;
+            display: block;
+        }
+        select, input[type="number"], input[type="color"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .button {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #f5b1a2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #f5b1a2;
+        }
+        #figureContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 500px;
+            height: 500px;
+            border: 1px solid #ffffff;
+            border-radius: 8px;
+            margin-top: 20px;
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Selector de Figuras</h1>
+        <form id="figureForm">
+            <label for="color">Color:</label>
+            <input type="color" id="color" name="color" value="#007bff">
+
+            <label for="size">Tamaño (px):</label>
+            <input type="number" id="size" name="size" min="5" max="500" value="100">
+
+            <label for="shape">Forma:</label>
+            <select id="shape" name="shape">
+                <option value="circle">Círculo</option>
+                <option value="square">Cuadrado</option>
+                <option value="polygon">Polígono</option>
+            </select>
+
+            <label for="sides" id="sidesLabel" style="display:none;">Cantidad de lados:</label>
+            <input type="number" id="sides" name="sides" min="3" max="10" value="3" style="display:none;">
+
+            <label for="format">Formato:</label>
+            <select id="format" name="format">
+                <option value="raster">Rasterizada</option>
+                <option value="vector">Vectorizada</option>
+            </select>
+
+            <div class="button">
+                <button type="submit">Generar Figura</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="figureContainer"></div>
+
+    <script>
+        const shapeSelect = document.getElementById("shape");
+        const sidesInput = document.getElementById("sides");
+        const sidesLabel = document.getElementById("sidesLabel");
+
+        shapeSelect.addEventListener("change", function() {
+            if (shapeSelect.value === "polygon") {
+                sidesInput.style.display = "block";
+                sidesLabel.style.display = "block";
+                sidesInput.focus();
+            } else {
+                sidesInput.style.display = "none";
+                sidesLabel.style.display = "none";
+            }
+        });
+
+        document.getElementById("figureForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const color = document.getElementById("color").value;
+            const size = document.getElementById("size").value;
+            const shape = document.getElementById("shape").value;
+            const sides = document.getElementById("sides").value;
+            const format = document.getElementById("format").value;
+
+            const figureContainer = document.getElementById("figureContainer");
+            figureContainer.innerHTML = '';  // Limpiar el contenedor antes de agregar una nueva figura
+
+            if (format === "vector") {
+                const svgNS = "http://www.w3.org/2000/svg";
+                const svg = document.createElementNS(svgNS, "svg");
+                svg.setAttribute("width", size);
+                svg.setAttribute("height", size);
+
+                let shapeElement;
+
+                if (shape === "circle") {
+                    shapeElement = document.createElementNS(svgNS, "circle");
+                    shapeElement.setAttribute("cx", size / 2);
+                    shapeElement.setAttribute("cy", size / 2);
+                    shapeElement.setAttribute("r", size / 2);
+                } else if (shape === "square") {
+                    shapeElement = document.createElementNS(svgNS, "rect");
+                    shapeElement.setAttribute("x", 0);
+                    shapeElement.setAttribute("y", 0);
+                    shapeElement.setAttribute("width", size);
+                    shapeElement.setAttribute("height", size);
+                } else if (shape === "polygon") {
+                    shapeElement = document.createElementNS(svgNS, "polygon");
+                    const points = [];
+                    const angle = (2 * Math.PI) / sides;
+
+                    for (let i = 0; i < sides; i++) {
+                        const x = size / 2 + (size / 2) * Math.cos(i * angle);
+                        const y = size / 2 + (size / 2) * Math.sin(i * angle);
+                        points.push(`${x},${y}`);
+                    }
+
+                    shapeElement.setAttribute("points", points.join(" "));
+                }
+
+                shapeElement.setAttribute("fill", color);
+                svg.appendChild(shapeElement);
+                figureContainer.appendChild(svg);
+            } else if (format === "raster") {
+                const canvas = document.createElement("canvas");
+                canvas.width = size;
+                canvas.height = size;
+
+                const ctx = canvas.getContext("2d");
+
+                ctx.fillStyle = color;
+                if (shape === "circle") {
+                    ctx.beginPath();
+                    ctx.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI);
+                    ctx.fill();
+                } else if (shape === "square") {
+                    ctx.fillRect(0, 0, size, size);
+                } else if (shape === "polygon") {
+                    const angle = (2 * Math.PI) / sides;
+                    ctx.beginPath();
+                    for (let i = 0; i < sides; i++) {
+                        const x = size / 2 + (size / 2) * Math.cos(i * angle);
+                        const y = size / 2 + (size / 2) * Math.sin(i * angle);
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                figureContainer.appendChild(canvas);
+            }
+        });
+    </script>
+</body>
+</html>
