@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Figuras</title>
+</head>
+<body>
+    <h1>Generador de Figuras</h1>
+    <form id="figureForm">
+        <label for="color">Color de la figura:</label>
+        <input type="color" id="color" name="color" value="#007bff"><br><br>
+
+        <label for="size">Tamaño de la figura (px):</label>
+        <input type="number" id="size" name="size" min="10" max="600" value="100"><br><br>
+
+        <label for="shape">Selecciona la forma:</label>
+        <select id="shape" name="shape">
+            <option value="circle">Círculo</option>
+            <option value="square">Cuadrado</option>
+            <option value="polygon">Polígono</option>
+        </select><br><br>
+
+        <label for="sides" id="sidesLabel" style="display:none;">Número de lados:</label>
+        <input type="number" id="sides" name="sides" min="3" max="80" value="3" style="display:none;"><br><br>
+
+        <button type="submit">Generar Figura</button>
+    </form>
+
+    <div id="figureContainer" style="margin-top: 50px; width: 600px; height: 600px; border: 2px solid rgb(0, 0, 0); display: flex; justify-content: center; align-items: center;">
+        <!-- Aquí se mostrará la figura generada -->
+    </div>
+
+    <script>
+        const shapeSelect = document.getElementById("shape");
+        const sidesInput = document.getElementById("sides");
+        const sidesLabel = document.getElementById("sidesLabel");
+
+        shapeSelect.addEventListener("change", function() {
+            if (shapeSelect.value === "polygon") {
+                sidesInput.style.display = "block";
+                sidesLabel.style.display = "block";
+                sidesInput.focus();
+            } else {
+                sidesInput.style.display = "none";
+                sidesLabel.style.display = "none";
+            }
+        });
+
+        document.getElementById("figureForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const color = document.getElementById("color").value;
+            const size = document.getElementById("size").value;
+            const shape = document.getElementById("shape").value;
+            const sides = document.getElementById("sides").value;
+
+            const figureContainer = document.getElementById("figureContainer");
+            figureContainer.innerHTML = '';  // Limpiar el contenedor antes de agregar una nueva figura
+
+            const svgNS = "http://www.w3.org/2000/svg";
+            const svg = document.createElementNS(svgNS, "svg");
+            svg.setAttribute("width", size);
+            svg.setAttribute("height", size);
+
+            let shapeElement;
+
+            if (shape === "circle") {
+                shapeElement = document.createElementNS(svgNS, "circle");
+                shapeElement.setAttribute("cx", size / 2);
+                shapeElement.setAttribute("cy", size / 2);
+                shapeElement.setAttribute("r", size / 2);
+            } else if (shape === "square") {
+                shapeElement = document.createElementNS(svgNS, "rect");
+                shapeElement.setAttribute("x", 0);
+                shapeElement.setAttribute("y", 0);
+                shapeElement.setAttribute("width", size);
+                shapeElement.setAttribute("height", size);
+            } else if (shape === "polygon") {
+                shapeElement = document.createElementNS(svgNS, "polygon");
+                const points = [];
+                const angle = (2 * Math.PI) / sides;
+
+                for (let i = 0; i < sides; i++) {
+                    const x = size / 2 + (size / 2) * Math.cos(i * angle);
+                    const y = size / 2 + (size / 2) * Math.sin(i * angle);
+                    points.push(`${x},${y}`);
+                }
+
+                shapeElement.setAttribute("points", points.join(" "));
+            }
+
+            shapeElement.setAttribute("fill", color);
+            svg.appendChild(shapeElement);
+            figureContainer.appendChild(svg);
+        });
+    </script>
+</body>
+</html>
