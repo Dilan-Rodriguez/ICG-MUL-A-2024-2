@@ -36,6 +36,17 @@ function bresenham(x1, y1, x2, y2, context) {
     }
 }
 
+// Generar puntos aleatorios
+function generarPuntosAleatorios(n, rango) {
+    const puntos = [];
+    for (let i = 0; i < n; i++) {
+        const x = Math.random() * rango - rango / 2;
+        const y = Math.random() * rango - rango / 2;
+        puntos.push(new Punto(x, y));
+    }
+    return puntos;
+}
+
 // Función para rasterizar el polígono
 function dibujarPoligonoRaster(puntos) {
     const canvas = document.getElementById("rasterCanvas");
@@ -51,4 +62,36 @@ function dibujarPoligonoRaster(puntos) {
     }
 }
 
+// Función para dibujar el centroide y las líneas
+function dibujarCentroideRaster(puntos) {
+    const canvas = document.getElementById("rasterCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const centroide = calcularCentroide(puntos);
+    ctx.fillStyle = 'red';
+    ctx.beginPath();
+    ctx.arc(centroide.x * 50 + 250, centroide.y * 50 + 250, 5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    puntos.forEach(p => {
+        bresenham(centroide.x * 50 + 250, centroide.y * 50 + 250, p.x * 50 + 250, p.y * 50 + 250, ctx);
+    });
+}
+
+// Lógica para mostrar/ocultar el centroide
+let centroideVisible = false;
+function toggleCentroid() {
+    const canvas = document.getElementById("rasterCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar el canvas
+    dibujarPoligonoRaster(puntos);
+
+    if (!centroideVisible) {
+        dibujarCentroideRaster(puntos);
+    }
+    centroideVisible = !centroideVisible;
+}
+
+// Generar puntos aleatorios y dibujar la figura
+const puntos = generarPuntosAleatorios(6, 5); // Generar 6 puntos en un rango de 5 unidades
 dibujarPoligonoRaster(puntos);

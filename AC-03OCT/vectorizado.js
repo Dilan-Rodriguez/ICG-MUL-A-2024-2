@@ -13,17 +13,18 @@ class Punto {
     }
 }
 
-//puntos prueba 
-const puntos = [
-    new Punto(0, 0),
-    new Punto(2, 1),
-    new Punto(1, 2),
-    new Punto(0, 2),
-    new Punto(-1, 1),
-    new Punto(-1, -1)
-];
+// Generar puntos aleatorios en un rango
+function generarPuntosAleatorios(n, rango) {
+    const puntos = [];
+    for (let i = 0; i < n; i++) {
+        const x = Math.random() * rango - rango / 2;
+        const y = Math.random() * rango - rango / 2;
+        puntos.push(new Punto(x, y));
+    }
+    return puntos;
+}
 
-
+// Función para calcular el centroide
 function calcularCentroide(puntos) {
     let xSum = 0, ySum = 0;
     puntos.forEach(p => {
@@ -33,7 +34,7 @@ function calcularCentroide(puntos) {
     return new Punto(xSum / puntos.length, ySum / puntos.length);
 }
 
-
+// Función para ordenar los puntos por ángulo con respecto al centroide
 function ordenarPuntos(puntos, centroide) {
     return puntos.slice().sort((a, b) => {
         const angA = Math.atan2(a.y - centroide.y, a.x - centroide.x);
@@ -42,7 +43,7 @@ function ordenarPuntos(puntos, centroide) {
     });
 }
 
-
+// Función para dibujar el polígono
 function dibujarPoligono(puntos) {
     const svg = document.getElementById("vectorCanvas");
     const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
@@ -57,7 +58,7 @@ function dibujarPoligono(puntos) {
     svg.appendChild(polygon);
 }
 
-
+// Función para dibujar el centroide y las líneas hacia los puntos
 function dibujarCentroide(puntos) {
     const svg = document.getElementById("vectorCanvas");
     const centroide = calcularCentroide(puntos);
@@ -82,11 +83,11 @@ function dibujarCentroide(puntos) {
     });
 }
 
-
+// Lógica para mostrar/ocultar el centroide
 let centroideVisible = false;
 function toggleCentroid() {
     const svg = document.getElementById("vectorCanvas");
-    svg.innerHTML = ""; 
+    svg.innerHTML = ""; // Limpiar el canvas
     dibujarPoligono(puntos);
 
     if (!centroideVisible) {
@@ -95,4 +96,6 @@ function toggleCentroid() {
     centroideVisible = !centroideVisible;
 }
 
+// Generar puntos aleatorios y dibujar la figura
+const puntos = generarPuntosAleatorios(6, 5); // Generar 6 puntos en un rango de 5 unidades
 dibujarPoligono(puntos);
